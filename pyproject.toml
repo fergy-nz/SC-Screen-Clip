@@ -1,0 +1,11 @@
+[project]
+name = "sc-screen-clip"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.12"
+dependencies = [
+    "pillow>=11.3.0",
+    "pywin32>=311",
+    "watchfiles>=1.1.0",
+    "winsdk>=1.0.0b10",
+]
