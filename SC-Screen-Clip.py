@@ -8,15 +8,18 @@ import subprocess
 import tempfile
 import time
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List
 
 from PIL import Image, ImageGrab
 from watchfiles import Change, watch
 
 # --- Configuration ---
 APP_ID = os.environ.get("APP_ID", "JAF.SCShots")  # AUMID-like identifier
-WATCH_DIR = Path(os.environ.get("WATCH_DIR", r"C:\Program Files\Roberts Space Industries\StarCitizen\LIVE\screenshots"))
-EXTS = {".png", ".jpg", ".jpeg"}
+WATCH_DIRS = [
+    Path(os.environ.get("WATCH_DIR", r"C:\Program Files\Roberts Space Industries\StarCitizen\LIVE\screenshots")),
+    Path(os.environ.get("WATCH_DIR", r"C:\Program Files\Roberts Space Industries\StarCitizen\PTU\screenshots")),
+]
+EXTS = {".png", ".jpg", ".jpeg", ".webp"}
 TOAST_PX = int(os.environ.get("TOAST_PX", "256"))  # square toast image size
 FORCE_POWERSHELL = False
 
@@ -281,10 +284,11 @@ def handle_new_image(path: Path) -> None:
         print(f"Error handling {path}: {e}")
 
 
-def watch_folder(folder: Path) -> None:
-    folder.mkdir(parents=True, exist_ok=True)
-    print(f"Watching: {folder}")
-    for changes in watch(folder):
+def watch_folders(folders: List[Path]) -> None:
+    for f in folders:
+        f.mkdir(parents=True, exist_ok=True)
+    print(f"Watching: {folders}")
+    for changes in watch(*folders):
         for change, p in changes:
             pth = Path(p)
             if change == Change.added and pth.suffix.lower() in EXTS:
@@ -296,6 +300,6 @@ def watch_folder(folder: Path) -> None:
 
 if __name__ == "__main__":
     try:
-        watch_folder(WATCH_DIR)
+        watch_folders(WATCH_DIRS)
     except KeyboardInterrupt:
         print("Stopped.")
