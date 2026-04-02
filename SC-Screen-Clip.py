@@ -287,7 +287,7 @@ def handle_new_image(path: Path) -> None:
 def watch_folders(folders: List[Path]) -> None:
     for f in folders:
         f.mkdir(parents=True, exist_ok=True)
-    print(f"Watching: {folders}")
+    print(f"Watching:\n {'\n'.join(['\t'+str(f) for f in folders])}")
     for changes in watch(*folders):
         for change, p in changes:
             pth = Path(p)
