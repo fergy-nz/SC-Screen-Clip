@@ -1,6 +1,7 @@
 # sc_clipboard_toast_watcher.py
 # Watches a folder for new screenshots, copies each to the clipboard,
 # crops & resizes a centred square, and shows a Windows toast with the thumbnail.
+# if configured, posts image to a discord channel via webhook
 
 import io
 import os
@@ -13,16 +14,19 @@ from typing import Optional, List
 
 from PIL import Image, ImageGrab
 from watchfiles import Change, watch
+from dotenv import load_dotenv
 
 # --- Configuration ---
-APP_ID = os.environ.get("APP_ID", "JAF.SCShots")  # AUMID-like identifier
+load_dotenv()
+APP_ID = os.environ.get("APP_ID", "Fergy.NZ.SCShots")  # AUMID-like identifier
 WATCH_DIRS = [
     Path(os.environ.get("WATCH_DIR", r"C:\Program Files\Roberts Space Industries\StarCitizen\LIVE\screenshots")),
     Path(os.environ.get("WATCH_DIR", r"C:\Program Files\Roberts Space Industries\StarCitizen\PTU\screenshots")),
 ]
 EXTS = {".png", ".jpg", ".jpeg", ".webp"}
 TOAST_PX = int(os.environ.get("TOAST_PX", "256"))  # square toast image size
-DISCORD_WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK_URL", "REMOVED_DISCORD_WEBHOOK")
+DISCORD_WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK_URL", None)
+USER_NAME = os.environ.get("USER_NAME", "Someone who didn't follow the instructions")
 FORCE_POWERSHELL = False
 
 # --- Clipboard (Windows) ---
@@ -278,7 +282,7 @@ def post_to_discord(path: Path) -> None:
                 "file": (path.name, f, "image/png")
             }
             payload = {
-                "content": f"New screenshot: {path.name}"
+                "content": f"Screenshot by {USER_NAME}"
             }
             response = requests.post(DISCORD_WEBHOOK_URL, data=payload, files=files, timeout=10)
             response.raise_for_status()
