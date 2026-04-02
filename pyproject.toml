@@ -8,7 +8,6 @@ dependencies = [
     "pyinstaller>=6.19.0",
     "pywin32>=311",
     "watchfiles>=1.1.1",
-    "winsdk>=1.0.0b10",
     "requests>=2.31.0",
     "python-dotenv>=1.0.1",
 ]

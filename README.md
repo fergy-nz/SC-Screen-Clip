@@ -71,7 +71,6 @@ To stop the script, simply close the terminal window or press `Ctrl+C`.
 - `Pillow`: Image processing.
 - `pywin32`: Windows clipboard integration.
 - `watchfiles`: Efficient filesystem monitoring.
-- `winsdk`: Windows Runtime API for toast notifications.
 - `requests`: Posting to Discord webhooks.
 - `python-dotenv`: Loading configuration from `.env`.
 
