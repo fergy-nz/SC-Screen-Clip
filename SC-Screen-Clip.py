@@ -5,6 +5,7 @@
 import io
 import os
 import subprocess
+import requests
 import tempfile
 import time
 from pathlib import Path
@@ -21,6 +22,7 @@ WATCH_DIRS = [
 ]
 EXTS = {".png", ".jpg", ".jpeg", ".webp"}
 TOAST_PX = int(os.environ.get("TOAST_PX", "256"))  # square toast image size
+DISCORD_WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK_URL", "REMOVED_DISCORD_WEBHOOK")
 FORCE_POWERSHELL = False
 
 # --- Clipboard (Windows) ---
@@ -263,6 +265,28 @@ def file_is_stable(path: Path, checks: int = 4, interval: float = 0.25) -> bool:
         return False
 
 
+def post_to_discord(path: Path) -> None:
+    """
+    Post image to Discord via Webhook.
+    """
+    if not DISCORD_WEBHOOK_URL:
+        return
+
+    try:
+        with open(path, "rb") as f:
+            files = {
+                "file": (path.name, f, "image/png")
+            }
+            payload = {
+                "content": f"New screenshot: {path.name}"
+            }
+            response = requests.post(DISCORD_WEBHOOK_URL, data=payload, files=files, timeout=10)
+            response.raise_for_status()
+            print(f"Posted to Discord: {path.name}")
+    except Exception as e:
+        print(f"Failed to post to Discord: {e}")
+
+
 def handle_new_image(path: Path) -> None:
     """
     Copy image to clipboard and show toast with centred square thumbnail.
@@ -280,6 +304,8 @@ def handle_new_image(path: Path) -> None:
             print(f"Toast shown: {path.name}")
         else:
             print(f"Failed to show toast for: {path.name}")
+
+        post_to_discord(path)
     except Exception as e:
         print(f"Error handling {path}: {e}")
 
